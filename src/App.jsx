@@ -1,10 +1,11 @@
 import { useState } from "react";
 import "@picocss/pico";
+import "./App.css";
 
 function App() {
   return (
     <main className="container">
-      <h1 style={{ marginBottom: "1rem" }}>My notes</h1>
+      <h1 className="app-title">My notes</h1>
 
       <div style={{ display: "flex", gap: "1rem" }}>
         <article style={{ margin: 0 }}>
