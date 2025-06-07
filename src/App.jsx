@@ -5,36 +5,33 @@ import "./App.css";
 function App() {
   return (
     <main className="container">
-      <h1 className="app-title">My notes</h1>
-
-      <div style={{ display: "flex", gap: "1rem" }}>
-        <article style={{ margin: 0 }}>
-          <div>Note 1</div>
+      <h1 className="app-title">Note App</h1>
+      <div className="note-list">
+        <article className="note-item">
+          <div className="note-title">My first note</div>
         </article>
-        <article style={{ margin: 0 }}>
-          <div>Note 2</div>
+
+        <article className="note-item">
+          <div className="note-title">My second note</div>
         </article>
       </div>
 
-      <div style={{ marginTop: "1rem" }}>
-        <label htmlFor="title">
-          Title
-          <input
-            type="text"
-            id="title"
-            name="title"
-            placeholder="The note's title"
-            required
-          />
-        </label>
+      <br />
 
-        <label htmlFor="content">
-          Content
-          <textarea type="text" id="content" name="content" required />
-        </label>
+      <label htmlFor="note-title">
+        Title
+        <input id="note-title" placeholder="Title of the note" required></input>
+      </label>
 
-        <button type="button">Save</button>
-      </div>
+      <label htmlFor="note-content">
+        Content
+        <textarea
+          id="note-content"
+          placeholder="The content"
+          required
+        ></textarea>
+      </label>
+      <button type="button">Submit</button>
     </main>
   );
 }
