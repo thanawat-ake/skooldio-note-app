@@ -6,12 +6,14 @@ function App() {
   const [noteData, setNoteData] = useState({ title: "", content: "" });
 
   const [notes, setNotes] = useState([]);
+
+  const [deletingItem, setDeletingItem] = useState(null);
   return (
     <main className="container">
       <h1 className="app-title">Note App</h1>
       <div className="note-list">
         {notes.map((note, index) => (
-          <article key={index} className="note-item">
+          <article key={note.id} className="note-item">
             <div className="note-title">{note.title}</div>
             <button
               className="note-edit-button"
@@ -21,9 +23,40 @@ function App() {
             >
               📝
             </button>
+            <button
+              className="note-delete-button"
+              onClick={() => {
+                setDeletingItem(note);
+              }}
+            >
+              🚮
+            </button>
           </article>
         ))}
       </div>
+
+      {deletingItem && (
+        <div className="modal">
+          <div className="modal-content">
+            <div className="modal-title">Are you sure?</div>
+            <p>
+              To delete {deletingItem.title} note, click the submit button
+              below.
+            </p>
+            <div className="modal-actions">
+              <button
+                onClick={() => {
+                  setNotes(notes.filter((item) => item.id !== deletingItem.id));
+                  setDeletingItem(null);
+                }}
+              >
+                Submit
+              </button>
+              <button onClick={() => setDeletingItem(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <br />
 
