@@ -45,6 +45,19 @@ function App() {
   useEffect(() => {
     localStorage.setItem("notes", JSON.stringify(notes));
   }, [notes]);
+
+  useEffect(() => {
+    function handleStorageChange(event) {
+      if (event.key === "notes") {
+        setNotes(JSON.parse(event.newValue) ?? []);
+      }
+    }
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
   return (
     <main className="container">
       <h1 className="app-title">Note App</h1>
