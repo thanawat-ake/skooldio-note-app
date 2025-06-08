@@ -2,6 +2,36 @@ import { useState } from "react";
 import "@picocss/pico";
 import "./App.css";
 
+function NoteWidget({ note, editing, onEditNote, onDeleteNote }) {
+  return (
+    <article
+      className={`note-item ${editing ? "note-editing" : ""}`}
+      key={note.id}
+    >
+      <div className="note-title">{note.title}</div>
+      <button
+        className="note-edit-button"
+        onClick={() => {
+          // onEditNote?.(note);
+          if (onEditNote) {
+            onEditNote();
+          }
+        }}
+      >
+        📝
+      </button>
+      <button
+        className="note-delete-button"
+        onClick={() => {
+          onDeleteNote?.();
+        }}
+      >
+        🚮
+      </button>
+    </article>
+  );
+}
+
 function App() {
   const [noteData, setNoteData] = useState({ title: "", content: "" });
 
@@ -12,32 +42,21 @@ function App() {
     <main className="container">
       <h1 className="app-title">Note App</h1>
       <div className="note-list">
-        {notes.map((note, index) => (
-          <article
-            className={`note-item ${
-              note.id === noteData.id ? "note-editing" : ""
-            }`}
-            key={note.id}
-          >
-            <div className="note-title">{note.title}</div>
-            <button
-              className="note-edit-button"
-              onClick={() => {
+        {notes.map((note) => {
+          return (
+            <NoteWidget
+              key={note.id}
+              note={note}
+              editing={note.id === noteData.id}
+              onEditNote={() => {
                 setNoteData(note);
               }}
-            >
-              📝
-            </button>
-            <button
-              className="note-delete-button"
-              onClick={() => {
+              onDeleteNote={() => {
                 setDeletingItem(note);
               }}
-            >
-              🚮
-            </button>
-          </article>
-        ))}
+            />
+          );
+        })}
       </div>
 
       {deletingItem && (
