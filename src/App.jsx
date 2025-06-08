@@ -13,7 +13,12 @@ function App() {
       <h1 className="app-title">Note App</h1>
       <div className="note-list">
         {notes.map((note, index) => (
-          <article key={note.id} className="note-item">
+          <article
+            className={`note-item ${
+              note.id === noteData.id ? "note-editing" : ""
+            }`}
+            key={note.id}
+          >
             <div className="note-title">{note.title}</div>
             <button
               className="note-edit-button"

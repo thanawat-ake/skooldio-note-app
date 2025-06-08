@@ -51,6 +51,10 @@
   background: initial;
 }
 
+.note-editing {
+  outline: 2px solid lightblue;
+}
+
 .modal {
   position: fixed;
   top: 0;
