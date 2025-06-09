@@ -42,9 +42,30 @@ function useDebounceFn(fn, delay = 1000) {
   };
 }
 
+// 1. value = "", debouncedValue = ""
+// 2. value = "a", debouncedValue = "" -> timeout1 (() => setDebouncedValue("a"))
+// --500ms
+// 3. value = "ab", debouncedValue = "" -> clearTimeout(timeout1), timeout2 (() => setDebouncedValue("ab"))
+// --1000ms () => setDebouncedValue("ab")
+// 4. value = "ab", debouncedValue = "ab"
+function useDebounceValue(value, delay = 1000) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 function App() {
   const [noteData, setNoteData] = useState(null); // update form (title, content)
-
   const [notes, setNotes] = useState(() => {
     const initialNote = localStorage.getItem("notes");
     return JSON.parse(initialNote) ?? [];
@@ -52,9 +73,10 @@ function App() {
 
   const [deletingItem, setDeletingItem] = useState(null);
 
+  const debouncedNotes = useDebounceValue(notes, 3000);
   useEffect(() => {
-    localStorage.setItem("notes", JSON.stringify(notes));
-  }, [notes]);
+    localStorage.setItem("notes", JSON.stringify(debouncedNotes));
+  }, [debouncedNotes]);
 
   useEffect(() => {
     function handleStorageChange(event) {
@@ -68,7 +90,7 @@ function App() {
     };
   }, []);
 
-  const saveNote = useDebounceFn((newData) => {
+  const saveNote = (newData) => {
     const isExisted = notes.find((note) => note.id === newData.id);
     if (isExisted) {
       setNotes(
@@ -82,7 +104,7 @@ function App() {
     } else {
       setNotes([...notes, newData]);
     }
-  }, 1000);
+  };
 
   /**
    * This function lets you define a field to update with a value
