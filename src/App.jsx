@@ -60,7 +60,10 @@ function App() {
 
   return (
     <main className="container">
-      <h1 className="app-title">Note App</h1>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h1 className="app-title">Note App</h1>
+        <button style={{ width: "auto" }}>📝</button>
+      </div>
       <div className="note-list">
         {notes.map((note) => {
           return (
@@ -129,12 +132,12 @@ function App() {
           }
         ></textarea>
       </label>
-      <button
+      {/* <button
         onClick={() => {
           // save the title and content to notes
           if (noteData.id) {
             console.log("1");
-            // save to the existing note
+            // update the note
             setNotes(
               notes.map((item) => {
                 if (item.id === noteData.id) {
@@ -145,8 +148,7 @@ function App() {
             );
           } else {
             console.log("2");
-            // add new note to the list
-            // uuid v4
+            // create a new note, uuid v4
             setNotes([...notes, { ...noteData, id: Date.now() }]);
           }
 
@@ -154,7 +156,7 @@ function App() {
         }}
       >
         Submit
-      </button>
+      </button> */}
     </main>
   );
 }
