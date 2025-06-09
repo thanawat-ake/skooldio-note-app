@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "@picocss/pico";
 import "./App.css";
 
@@ -32,8 +32,18 @@ function NoteWidget({ note, editing, onEditNote, onDeleteNote }) {
   );
 }
 
+function useDebounceFn(fn, delay = 1000) {
+  const timeout = useRef(null);
+  return (...args) => {
+    clearTimeout(timeout.current);
+    timeout.current = setTimeout(() => {
+      fn(...args);
+    }, delay);
+  };
+}
+
 function App() {
-  const [noteData, setNoteData] = useState(null);
+  const [noteData, setNoteData] = useState(null); // update form (title, content)
 
   const [notes, setNotes] = useState(() => {
     const initialNote = localStorage.getItem("notes");
@@ -58,6 +68,22 @@ function App() {
     };
   }, []);
 
+  const saveNote = useDebounceFn((newData) => {
+    const isExisted = notes.find((note) => note.id === newData.id);
+    if (isExisted) {
+      setNotes(
+        notes.map((item) => {
+          if (item.id === newData.id) {
+            return newData;
+          }
+          return item;
+        })
+      );
+    } else {
+      setNotes([...notes, newData]);
+    }
+  }, 1000);
+
   /**
    * This function lets you define a field to update with a value
    */
@@ -68,14 +94,7 @@ function App() {
         ...noteData,
         [field]: value,
       };
-      setNotes(
-        notes.map((item) => {
-          if (item.id === newData.id) {
-            return newData;
-          }
-          return item;
-        })
-      );
+      saveNote(newData);
       setNoteData(newData);
     } else {
       // create a new note, uuid v4
@@ -85,7 +104,7 @@ function App() {
         [field]: value,
         id: newId,
       };
-      setNotes([...notes, newData]);
+      saveNote(newData);
       setNoteData(newData);
     }
   };
