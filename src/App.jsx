@@ -64,7 +64,14 @@ function useDebounceValue(value, delay = 1000) {
   return debouncedValue;
 }
 
+// history: [3, 2, 1]
+// current: 4
+// future:  []
+
 function App() {
+  const [history, setHistory] = useState([]);
+  console.log(history);
+  const [future, setFuture] = useState([]);
   const [noteData, setNoteData] = useState(null); // update form (title, content)
   const [notes, setNotes] = useState(() => {
     const initialNote = localStorage.getItem("notes");
@@ -118,6 +125,7 @@ function App() {
       };
       saveNote(newData);
       setNoteData(newData);
+      setHistory([noteData, ...history]);
     } else {
       // create a new note, uuid v4
       const newId = Date.now();
@@ -128,6 +136,7 @@ function App() {
       };
       saveNote(newData);
       setNoteData(newData);
+      setHistory([noteData, ...history]);
     }
   };
 
@@ -214,6 +223,37 @@ function App() {
               }}
             ></textarea>
           </label>
+
+          <div style={{ display: "flex", gap: 16 }}>
+            <button
+              style={{ width: "auto" }}
+              disabled={history.length === 0}
+              onClick={() => {
+                const previousNote = history[0];
+                if (previousNote) {
+                  setHistory(history.slice(1));
+                  setNoteData(previousNote);
+                  setFuture([noteData, ...future]);
+                }
+              }}
+            >
+              Undo
+            </button>
+            <button
+              style={{ width: "auto" }}
+              disabled={future.length === 0}
+              onClick={() => {
+                const lastNote = future[0];
+                if (lastNote) {
+                  setHistory([noteData, ...history]);
+                  setNoteData(lastNote);
+                  setFuture(future.slice(1));
+                }
+              }}
+            >
+              Redo
+            </button>
+          </div>
         </>
       )}
     </main>
