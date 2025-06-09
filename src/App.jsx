@@ -58,6 +58,38 @@ function App() {
     };
   }, []);
 
+  /**
+   * This function lets you define a field to update with a value
+   */
+  const updateField = (field, value) => {
+    if (noteData.id) {
+      // update the note
+      const newData = {
+        ...noteData,
+        [field]: value,
+      };
+      setNotes(
+        notes.map((item) => {
+          if (item.id === newData.id) {
+            return newData;
+          }
+          return item;
+        })
+      );
+      setNoteData(newData);
+    } else {
+      // create a new note, uuid v4
+      const newId = Date.now();
+      const newData = {
+        ...noteData,
+        [field]: value,
+        id: newId,
+      };
+      setNotes([...notes, newData]);
+      setNoteData(newData);
+    }
+  };
+
   return (
     <main className="container">
       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -124,32 +156,7 @@ function App() {
               required
               value={noteData.title}
               onChange={(event) => {
-                if (noteData.id) {
-                  // update the note
-                  const newData = {
-                    ...noteData,
-                    title: event.target.value,
-                  };
-                  setNotes(
-                    notes.map((item) => {
-                      if (item.id === newData.id) {
-                        return newData;
-                      }
-                      return item;
-                    })
-                  );
-                  setNoteData(newData);
-                } else {
-                  // create a new note, uuid v4
-                  const newId = Date.now();
-                  const newData = {
-                    ...noteData,
-                    title: event.target.value,
-                    id: newId,
-                  };
-                  setNotes([...notes, newData]);
-                  setNoteData(newData);
-                }
+                updateField("title", event.target.value);
               }}
             ></input>
           </label>
@@ -161,36 +168,13 @@ function App() {
               placeholder="The content"
               required
               value={noteData.content}
-              onChange={(event) =>
-                setNoteData({ ...noteData, content: event.target.value })
-              }
+              onChange={(event) => {
+                updateField("content", event.target.value);
+              }}
             ></textarea>
           </label>
         </>
       )}
-      {/* <button
-        onClick={() => {
-          // save the title and content to notes
-          if (noteData.id) {
-            // update the note
-            setNotes(
-              notes.map((item) => {
-                if (item.id === noteData.id) {
-                  return noteData;
-                }
-                return item;
-              })
-            );
-          } else {
-            // create a new note, uuid v4
-            setNotes([...notes, { ...noteData, id: Date.now() }]);
-          }
-
-          setNoteData({ title: "", content: "" });
-        }}
-      >
-        Submit
-      </button> */}
     </main>
   );
 }
