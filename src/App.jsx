@@ -1,14 +1,20 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect, useRef, useCallback } from "react";
 import "@picocss/pico";
 import "./App.css";
 
+// pure component without side effects
+// control the edit/delete UI (not logic)
 function NoteWidget({ note, editing, onEditNote, onDeleteNote }) {
   return (
     <article
       className={`note-item ${editing ? "note-editing" : ""}`}
       key={note.id}
     >
-      <div className="note-title">{note.title}</div>
+      <div className="note-title">
+        {note.image && <img src={note.image} style={{ width: 24 }}></img>}
+        {note.title}
+      </div>
       <button
         className="note-edit-button"
         onClick={() => {
@@ -255,6 +261,25 @@ function App() {
                 updateField("content", event.target.value);
               }}
             ></textarea>
+          </label>
+
+          <label>
+            Image
+            <img
+              src={noteData.image}
+              style={{ width: 100, display: "block" }}
+            ></img>
+            <input
+              type="file"
+              onChange={(event) => {
+                if (event.target.files.length) {
+                  updateField(
+                    "image",
+                    URL.createObjectURL(event.target.files[0])
+                  );
+                }
+              }}
+            ></input>
           </label>
 
           <div style={{ display: "flex", gap: 16 }}>
