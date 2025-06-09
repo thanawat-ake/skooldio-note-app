@@ -33,12 +33,12 @@ function NoteWidget({ note, editing, onEditNote, onDeleteNote }) {
 }
 
 function App() {
-  const [noteData, setNoteData] = useState({ title: "", content: "" });
+  const [noteData, setNoteData] = useState(null);
 
   const [notes, setNotes] = useState(() => {
     const initialNote = localStorage.getItem("notes");
     return JSON.parse(initialNote) ?? [];
-  });
+  }); // database
 
   const [deletingItem, setDeletingItem] = useState(null);
 
@@ -62,7 +62,14 @@ function App() {
     <main className="container">
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <h1 className="app-title">Note App</h1>
-        <button style={{ width: "auto" }}>📝</button>
+        <button
+          style={{ width: "auto" }}
+          onClick={() => {
+            setNoteData({ title: "", content: "" });
+          }}
+        >
+          📝
+        </button>
       </div>
       <div className="note-list">
         {notes.map((note) => {
@@ -70,7 +77,7 @@ function App() {
             <NoteWidget
               key={note.id}
               note={note}
-              editing={note.id === noteData.id}
+              editing={note.id === noteData?.id}
               onEditNote={() => {
                 setNoteData(note);
               }}
@@ -107,36 +114,64 @@ function App() {
 
       <br />
 
-      <label htmlFor="note-title">
-        Title
-        <input
-          id="note-title"
-          placeholder="Title of the note"
-          required
-          value={noteData.title}
-          onChange={(event) =>
-            setNoteData({ ...noteData, title: event.target.value })
-          }
-        ></input>
-      </label>
+      {noteData && (
+        <>
+          <label htmlFor="note-title">
+            Title
+            <input
+              id="note-title"
+              placeholder="Title of the note"
+              required
+              value={noteData.title}
+              onChange={(event) => {
+                if (noteData.id) {
+                  // update the note
+                  const newData = {
+                    ...noteData,
+                    title: event.target.value,
+                  };
+                  setNotes(
+                    notes.map((item) => {
+                      if (item.id === newData.id) {
+                        return newData;
+                      }
+                      return item;
+                    })
+                  );
+                  setNoteData(newData);
+                } else {
+                  // create a new note, uuid v4
+                  const newId = Date.now();
+                  const newData = {
+                    ...noteData,
+                    title: event.target.value,
+                    id: newId,
+                  };
+                  setNotes([...notes, newData]);
+                  setNoteData(newData);
+                }
+              }}
+            ></input>
+          </label>
 
-      <label htmlFor="note-content">
-        Content
-        <textarea
-          id="note-content"
-          placeholder="The content"
-          required
-          value={noteData.content}
-          onChange={(event) =>
-            setNoteData({ ...noteData, content: event.target.value })
-          }
-        ></textarea>
-      </label>
+          <label htmlFor="note-content">
+            Content
+            <textarea
+              id="note-content"
+              placeholder="The content"
+              required
+              value={noteData.content}
+              onChange={(event) =>
+                setNoteData({ ...noteData, content: event.target.value })
+              }
+            ></textarea>
+          </label>
+        </>
+      )}
       {/* <button
         onClick={() => {
           // save the title and content to notes
           if (noteData.id) {
-            console.log("1");
             // update the note
             setNotes(
               notes.map((item) => {
@@ -147,7 +182,6 @@ function App() {
               })
             );
           } else {
-            console.log("2");
             // create a new note, uuid v4
             setNotes([...notes, { ...noteData, id: Date.now() }]);
           }
