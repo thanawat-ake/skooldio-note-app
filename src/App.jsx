@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import "@picocss/pico";
 import "./App.css";
 
@@ -70,7 +70,6 @@ function useDebounceValue(value, delay = 1000) {
 
 function App() {
   const [history, setHistory] = useState([]);
-  console.log(history);
   const [future, setFuture] = useState([]);
   const [noteData, setNoteData] = useState(null); // update form (title, content)
   const [notes, setNotes] = useState(() => {
@@ -97,21 +96,55 @@ function App() {
     };
   }, []);
 
-  const saveNote = (newData) => {
-    const isExisted = notes.find((note) => note.id === newData.id);
-    if (isExisted) {
-      setNotes(
-        notes.map((item) => {
-          if (item.id === newData.id) {
-            return newData;
+  const saveNote = useCallback(
+    (newData) => {
+      const isExisted = notes.find((note) => note.id === newData.id);
+      if (isExisted) {
+        setNotes(
+          notes.map((item) => {
+            if (item.id === newData.id) {
+              return newData;
+            }
+            return item;
+          })
+        );
+      } else {
+        setNotes([...notes, newData]);
+      }
+    },
+    [notes]
+  );
+
+  useEffect(() => {
+    const handleKeydown = (event) => {
+      if (event.key === "z" && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        if (event.shiftKey) {
+          // redo
+          const lastNote = future[0];
+          if (lastNote) {
+            setHistory([noteData, ...history]);
+            setNoteData(lastNote);
+            saveNote(lastNote);
+            setFuture(future.slice(1));
           }
-          return item;
-        })
-      );
-    } else {
-      setNotes([...notes, newData]);
-    }
-  };
+        } else {
+          // undo
+          const previousNote = history[0];
+          if (previousNote) {
+            setHistory(history.slice(1));
+            setNoteData(previousNote);
+            saveNote(previousNote);
+            setFuture([noteData, ...future]);
+          }
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, [future, history, noteData, saveNote]);
 
   /**
    * This function lets you define a field to update with a value
@@ -233,6 +266,7 @@ function App() {
                 if (previousNote) {
                   setHistory(history.slice(1));
                   setNoteData(previousNote);
+                  saveNote(previousNote);
                   setFuture([noteData, ...future]);
                 }
               }}
@@ -247,6 +281,7 @@ function App() {
                 if (lastNote) {
                   setHistory([noteData, ...history]);
                   setNoteData(lastNote);
+                  saveNote(lastNote);
                   setFuture(future.slice(1));
                 }
               }}
